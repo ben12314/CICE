@@ -123,7 +123,8 @@
       real (kind=dbl_kind) :: ice_ref_salinity
 
       logical (kind=log_kind) :: calc_Tsfc, formdrag, highfreq, calc_strair, calc_dragio
-      logical (kind=log_kind) :: conserv_check, semi_implicit_Tsfc, vapor_flux_correction
+      logical (kind=log_kind) :: conserv_check, semi_implicit_Tsfc, vapor_flux_correction, sublimation_on
+
 
       integer (kind=int_kind) :: ntrcr
       logical (kind=log_kind) :: tr_iage, tr_FY, tr_lvl, tr_pond, tr_snow
@@ -133,6 +134,10 @@
       integer (kind=int_kind) :: nt_alvl, nt_vlvl, nt_apnd, nt_hpnd, nt_ipnd, &
                                  nt_smice, nt_smliq, nt_rhos, nt_rsnw, &
                                  nt_aero, nt_fsd, nt_isosno, nt_isoice
+
+
+
+
 
       real (kind=real_kind) :: rplvl, rptopo, rpsealvl
       real (kind=dbl_kind) :: Cf, puny
@@ -161,7 +166,8 @@
         a_rapid_mode,   Rac_rapid_mode,  aspect_rapid_mode,             &
         dSdt_slow_mode, phi_c_slow_mode, phi_i_mushy,                   &
         floediam,       hfrazilmin,      Tliquidus_max,    hi_min,      &
-        tscale_pnd_drain
+        tscale_pnd_drain, sublimation_on                                                
+        
 
       namelist /dynamics_nml/ &
         kstrength,      krdg_partic,    krdg_redist,    mu_rdg,         &
@@ -1024,6 +1030,9 @@
       ! set Icepack values
       !-----------------------------------------------------------------
 
+
+      write(nu_diag,*) 'DEBUG sublimation_on from namelist = ', sublimation_on
+
       call icepack_init_parameters(ustar_min_in=ustar_min, Cf_in=Cf, &
            albicev_in=albicev, albicei_in=albicei, ksno_in=ksno, &
            albsnowv_in=albsnowv, albsnowi_in=albsnowi, hi_min_in=hi_min, &
@@ -1045,6 +1054,7 @@
            ktherm_in=ktherm, calc_Tsfc_in=calc_Tsfc, &
            semi_implicit_Tsfc_in=semi_implicit_Tsfc, &
            vapor_flux_correction_in=vapor_flux_correction, &
+           sublimation_on_in=sublimation_on, &
            conduct_in=conduct, a_rapid_mode_in=a_rapid_mode, &
            update_ocn_f_in=update_ocn_f, cpl_frazil_in=cpl_frazil, &
            Rac_rapid_mode_in=Rac_rapid_mode, &

@@ -157,6 +157,7 @@
                                   ! atmos-ice fluxes are provided to CICE
          semi_implicit_Tsfc = .false.    ,&! surface temperature coupling option
          vapor_flux_correction = .false. ,&! compute mass/enthalpy correction for evaporation/sublimation
+         sublimation_on = .true.  ,&
          update_ocn_f = .false. ,&! include fresh water and salt fluxes for frazil
          modal_aero   = .false. ,&! if true, use modal aerosal optical properties
                                   ! only for use with tr_aero or tr_zaero
@@ -585,6 +586,7 @@
          ktherm_in, conduct_in, fbot_xfer_type_in, calc_Tsfc_in, &
          update_ocn_f_in, ustar_min_in, hi_min_in, a_rapid_mode_in, &
          cpl_frazil_in, semi_implicit_Tsfc_in, vapor_flux_correction_in, &
+         sublimation_on_in, &
          Rac_rapid_mode_in, aspect_rapid_mode_in, &
          dSdt_slow_mode_in, phi_c_slow_mode_in, &
          phi_i_mushy_in, ratio_Wm2_m_in, cold_temp_flag_in, shortwave_in, albedo_type_in, &
@@ -721,6 +723,7 @@
          semi_implicit_Tsfc_in   , &! compute dfsurf/dT, dflat/dT terms instead of fsurf, flat
          vapor_flux_correction_in, &! compute mass/enthalpy correction when evaporation/sublimation
                             ! computed outside at 0C
+         sublimation_on_in, &
          update_ocn_f_in    ! include fresh water and salt fluxes for frazil
 
       real (kind=dbl_kind), intent(in), optional :: &
@@ -1046,7 +1049,9 @@
 
       real (kind=dbl_kind), intent(in), optional :: &
          sk_l_in,       & ! skeletal layer thickness (m)
-         min_bgc_in       ! fraction of ocean bgc concentration in surface melt
+         min_bgc_in       ! fraction of ocean bgc concentration in surface melt#
+
+      
 
 !-----------------------------------------------------------------------
 ! Parameters for melt ponds
@@ -1199,6 +1204,9 @@
       if (present(calc_Tsfc_in)         ) calc_Tsfc        = calc_Tsfc_in
       if (present(semi_implicit_Tsfc_in)) semi_implicit_Tsfc= semi_implicit_Tsfc_in
       if (present(vapor_flux_correction_in)) vapor_flux_correction= vapor_flux_correction_in
+      if (present(sublimation_on_in)) sublimation_on = sublimation_on_in
+      write(*,*) 'DEBUG icepack_parameters sublimation_on = ', sublimation_on
+
       if (present(cpl_frazil_in)        ) cpl_frazil       = cpl_frazil_in
       if (present(update_ocn_f_in)      ) update_ocn_f     = update_ocn_f_in
       if (present(ustar_min_in)         ) ustar_min        = ustar_min_in

@@ -33,6 +33,7 @@
       use icepack_parameters, only: phi_i_mushy, floeshape, floediam, use_smliq_pnd, snwredist
       use icepack_parameters, only: saltflux_option, congel_freeze, semi_implicit_Tsfc, vapor_flux_correction
       use icepack_parameters, only: icepack_chkoptargflag
+      use icepack_parameters, only: sublimation_on
 
       use icepack_tracers, only: ncat, nilyr, nslyr, nfsd
       use icepack_tracers, only: tr_iage, tr_FY, tr_aero, tr_pond, tr_fsd, tr_iso
@@ -451,6 +452,24 @@
       ! Add new snowfall.
       ! Repartition ice into equal-thickness layers, conserving energy.
       !-----------------------------------------------------------------
+
+
+
+      !-----------------------------------------------------------------
+      ! Optional switch: disable sublimation latent heat flux
+      !-----------------------------------------------------------------
+
+    write(*,*) 'SUBTEST BEFORE ', sublimation_on, flatn, fsurfn
+
+   if (.not. sublimation_on .and. flatn < c0) then
+      fsurfn = fsurfn - flatn
+      flatn  = c0
+      write(*,*) 'SUBTEST SWITCHED ', flatn, fsurfn
+   endif
+
+write(*,*) 'SUBTEST AFTER ', flatn, fsurfn
+
+      
 
       call thickness_changes(dt,          yday,      &
                              efinal,                 &
@@ -1325,17 +1344,19 @@
 
       endif                     ! .not. l_brine
 
-      !-----------------------------------------------------------------
+           !-----------------------------------------------------------------
       ! Compute energy available for sublimation/condensation, top melt,
       ! and bottom growth/melt.
       !-----------------------------------------------------------------
 
+   
+
       wk1 = -flatn * dt
-      esub = max(wk1, c0)     ! energy for sublimation, > 0
-      econ = min(wk1, c0)     ! energy for condensation, < 0
+      esub = max(wk1, c0)
+      econ = min(wk1, c0)
 
       wk1 = (fsurfn - fcondtopn) * dt
-      etop_mlt = max(wk1, c0)           ! etop_mlt > 0
+      etop_mlt = max(wk1, c0)
 
       wk1 = (fcondbotn - fbot + fcondtopn_extra) * dt
       ebot_mlt = max(wk1, c0)           ! ebot_mlt > 0
@@ -1494,6 +1515,14 @@
             melts = melts - dhs
             ! delta E = zqsn(k) + rhos * Lfresh
          endif
+
+
+         !--------------------------------------------------------------
+         ! Optional switch: disable sublimation
+         !--------------------------------------------------------------
+
+         ! if (.not. sublimation_on) esub = c0
+
 
          !--------------------------------------------------------------
          ! Sublimation of snow (evapn < 0)

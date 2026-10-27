@@ -547,20 +547,12 @@
       ! Ice station meteorology from Lindsay (1998, J. Climate), Table 1, p. 325
       ! zlvl = c2 ! 2-m temperatures and wind speed
 
-      data  fsw_clim /  0.0d0,   1.2d0,  31.5d0, 146.0d0, 263.3d0, 307.9d0, &
-                      230.6d0, 134.7d0,  44.2d0,   2.6d0,   0.0d0,   0.0d0  /
-      data  flw_clim /164.0d0, 160.5d0, 164.1d0, 188.1d0, 245.2d0, 291.2d0, &
-                      303.9d0, 297.0d0, 263.8d0, 210.9d0, 177.0d0, 166.0d0  /
-      data Tair_clim /-31.4d0, -32.8d0, -31.6d0, -24.1d0, -11.0d0,  -1.8d0, &
-                       -0.1d0,  -1.4d0,  -8.0d0, -19.5d0, -27.6d0, -31.1d0  /
-      data rhum_clim / 78.7d0,  78.4d0,  79.6d0,  82.1d0,  86.5d0,  91.7d0, &
-                       95.1d0,  94.3d0,  90.7d0,  83.8d0,  80.1d0,  78.7d0  /
-      data wind_clim /  4.4d0,   4.0d0,   4.0d0,   3.9d0,   3.9d0,   4.2d0, &
-                        4.1d0,   4.2d0,   4.5d0,   4.2d0,   3.9d0,   4.0d0  /
-!      data  shf_clim /  9.9d0,   8.4d0,   6.6d0,   0.1d0,  -5.8d0,  -1.6d0, &
-!                        2.2d0,   1.2d0,   0.5d0,   2.0d0,   5.6d0,   7.0d0  /
-!      data  lhf_clim /  1.3d0,   1.1d0,   1.1d0,   0.0d0,  -5.9d0, -10.3d0, &
-!                       -6.5d0,  -6.7d0,  -3.9d0,  -0.1d0,   1.0d0,   1.1d0  /
+      data fsw_clim   / 12*0.0d0 /
+      data flw_clim   / 12*200.0d0 /
+      data Tair_clim  / 12*-10.0d0 /
+      data rhum_clim  / 12*20.0d0 /
+      data wind_clim  / 12*0.0d0 /
+      data fsnow_clim / 12*0.0d0 /
 
       ! Semtner (1976, JPO) snowfall spec., p. 383 in m/s snow volume (.4 m/yr)
       data fsnow_clim/ 3.17d-9, 3.17d-9, 3.17d-9, 3.17d-9, 1.90d-8,    0.0d0, &
@@ -596,7 +588,7 @@
       frain_data(1:12) = c0
 
       ! 6 W/m2 warming of mixed layer from deep ocean
-        qdp_data(:) = -6.0 ! 2 W/m2 from deep + 4 W/m2 counteracting larger
+        qdp_data(:) = 0 ! 2 W/m2 from deep + 4 W/m2 counteracting larger
                               ! SH+LH with bulk transfer than in MU 71
       ! Warn that this overwrites default and namelist value
       write(nu_diag,*) subname
@@ -604,6 +596,56 @@
          'oceanic heat flux convergence from default or namelist'
 
       end subroutine atm_climatological
+
+
+   subroutine atm_coldroom
+
+         real (kind=dbl_kind) :: &
+            Tffresh, qqqice, TTTice, rhos
+
+         character(len=*), parameter :: subname='(atm_coldroom)'
+
+         ! Get Icepack constants
+         call icepack_query_parameters(Tffresh_out=Tffresh, qqqice_out=qqqice, &
+            TTTice_out=TTTice, rhos_out=rhos)
+
+         call icepack_warnings_flush(nu_diag)
+
+         if (icepack_warnings_aborted()) call icedrv_system_abort( &
+            string=subname, file=__FILE__, line=__LINE__)
+
+         ! ---------------------------------------------------------
+         ! COLD ROOM CONDITIONS
+         ! ---------------------------------------------------------
+
+         fsw_data(:)  = 0.0d0
+         flw_data(:)  = 200.0d0
+
+         rhum_data(:) = 20.0d0
+         wind_data(:) = 0.0d0
+
+         rhoa_data(:) = 1.275d0
+
+         Tair_data(:) = -20.0d0 + Tffresh
+
+         uatm_data(:) = 0.0d0
+         vatm_data(:) = 0.0d0
+
+         ! Convert RH into atmospheric specific humidity
+         Qa_data(:) = (rhum_data(:)/c100)*qqqice &
+                  * exp(-TTTice/Tair_data(:))/rhoa_data(:)
+
+         ! No precipitation
+         fsnow_data(:) = 0.0d0
+         frain_data(:) = 0.0d0
+
+         ! No deep-ocean heating
+         qdp_data(:) = 0.0d0
+
+         write(nu_diag,*) subname
+         write(nu_diag,*) 'Using custom cold-room atmospheric forcing'
+
+   end subroutine atm_coldroom
 
 !=======================================================================
 
