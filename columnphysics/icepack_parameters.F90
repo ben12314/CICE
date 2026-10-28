@@ -116,8 +116,8 @@
 
          !-------------------------------------------------------------------------
 
-         !    Lsub      = 2.835e6_dbl_kind ,&! latent heat, sublimation freshwater (J/kg)
-         Lsub = 3.34e5_dbl_kind
+         Lsub      = 2.835e6_dbl_kind ,&! latent heat, sublimation freshwater (J/kg)
+         !      Lsub = 3.34e5_dbl_kind       ,&
 
 
 
@@ -2833,7 +2833,8 @@
         !----------------------------------------
         !     Lfresh = Lsub-Lvap
         Lfresh = 2.835e6_dbl_kind
-
+        
+       
 
 
 
