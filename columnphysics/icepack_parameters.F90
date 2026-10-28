@@ -112,7 +112,16 @@
          Tocnfrz   = -1.8_dbl_kind    ,&! freezing temp of seawater (C),
                                         ! used as Tsfcn for open water
          Tffresh   = 273.15_dbl_kind  ,&! freezing temp of fresh ice (K)
-         Lsub      = 2.835e6_dbl_kind ,&! latent heat, sublimation freshwater (J/kg)
+
+
+         !-------------------------------------------------------------------------
+
+         !    Lsub      = 2.835e6_dbl_kind ,&! latent heat, sublimation freshwater (J/kg)
+         Lsub = 3.34e5_dbl_kind
+
+
+
+
          Lvap      = 2.501e6_dbl_kind ,&! latent heat, vaporization freshwater (J/kg)
          Timelt    = 0.0_dbl_kind     ,&! melting temperature, ice top surface  (C)
          Tsmelt    = 0.0_dbl_kind     ,&! melting temperature, snow top surface (C)
@@ -2818,7 +2827,16 @@
       character(len=*),parameter :: subname='(icepack_recompute_constants)'
 
         cprho  = cp_ocn*rhow
-        Lfresh = Lsub-Lvap
+
+
+
+        !----------------------------------------
+        !     Lfresh = Lsub-Lvap
+        Lfresh = 2.835e6_dbl_kind
+
+
+
+
         Cp     = 0.5_dbl_kind*gravit*(rhow-rhoi)*rhoi/rhow
         pih    = p5*pi
         piq    = p5*p5*pi
